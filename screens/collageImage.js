@@ -5,10 +5,10 @@ import Icon from "react-native-vector-icons/MaterialIcons";
 import { captureScreen, ViewShot } from "react-native-view-shot";
 import RNFS from "react-native-fs";
 import CameraRoll from "@react-native-community/cameraroll"
+import ImageEditing from './ImageEditing';
 function CollageImage({ route, navigation }) {
-    const [path, setPath] = useState([])
-    const viewShot = useRef()
-
+    const [pathimg, setPath] = useState([])
+    const [done, setDone] = useState(false)
 
     useEffect(() => {
         getimagepath()
@@ -19,62 +19,22 @@ function CollageImage({ route, navigation }) {
             data.push({ url: image.path })
         })
         setPath(data)
+        setDone(true)
     }
-
-    const snapshot = () => {
-
-        setTimeout(() => {
-            captureScreen({
-                format: "jpg",
-                quality: 1
-            })
-                .then(res => {
-                    console.log("save image:", res)
-                    CameraRoll.saveToCameraRoll(res)
-                        .then((path) => {
-                            console.log(res.split('/')[8])
-                            let name = res.split('/')[8]
-                            moveFile(path, name)
-                        })
-                        .catch(err => console.log('err:', err))
-                })
-                .catch(err => {
-                    console.error("Oops, snapshot failed", err);
-                });
-        }, 1000);
-    }
-    const moveFile = (uri, filename) => {
-        const realPath = '/storage/emulated/0/DCIM/' + filename;
-        const destPath = `/storage/emulated/0/Meme Generator/` + filename;
-        console.log(realPath, ">>>>>>>>>>>>>>>", destPath)
-        RNFS.moveFile(realPath, destPath)
-            .then(success => {
-                console.log("file moved!");
-                navigation.navigate('Dashboard')
-            })
-            .catch(err => {
-                console.log("Error: " + err.message);
-            });
-    };
-
     return (
-        <View style={styles.container}>
-            <ViewShot ref={viewShot} >
-                <View>
-                    <PhotoGrid PhotosList={path ? path : null} borderRadius={10} />
-                </View>
-            </ViewShot>
-            <View style={styles.myButton}>
-                <Icon
-                    name={'get-app'}
-                    size={30}
-                    color="#fff"
-                    onPress={() => snapshot()}
-                />
-            </View>
-
-        </View>
+        <>
+        {
+            done ==true ? 
+            <ImageEditing
+                propsimage={pathimg.length ? pathimg : pathimg} 
+                propNavigation= {navigation.navigate}/>
+                : 
+                null
+        }
+            
+        </>
     )
+
 }
 export default CollageImage;
 
